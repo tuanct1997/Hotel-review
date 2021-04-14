@@ -33,22 +33,23 @@ class LSTM(nn.Module):
         self.lstm2 = nn.LSTM(1400, 500,bidirectional = True)
         self.lstm3 = nn.LSTM(1000, 300,bidirectional = False)
         self.lstm4 = nn.LSTM(300, 100,bidirectional = False)
-		self.dropout = nn.Dropout(0.5)
-		self.dense = nn.Linear(100, 5)
-		self.act = nn.ReLU()
+        self.dropout = nn.Dropout(0.5)
+        self.dense = nn.Linear(100, 5)
+        self.act = nn.ReLU()
 
 	def forward(self,x):
 		# text_emb = self.word_embeddings(x)
 		# packed_input = pack_padded_sequence(text_emb, 1931, batch_first=True, enforce_sorted=False)
 		lstm_out, lstm_hidden = self.lstm(x)
+        lstm_out = lstm_out[:,1:7,:]
         lstm_out, lstm_hidden = self.lstm2(lstm_out)
         lstm_out, lstm_hidden = self.lstm3(lstm_out)
         lstm_out, lstm_hidden = self.lstm4(lstm_out)
-		lstm_out = lstm_out[:,-1,:]
-		lstm_out = self.act(lstm_out)
-		drop_out = self.dropout(lstm_out)
-		output = self.dense(drop_out)
-		return output
+        lstm_out = lstm_out[:,-1,:]
+        lstm_out = self.act(lstm_out)
+        drop_out = self.dropout(lstm_out)
+        output = self.dense(drop_out)
+        return output
 		
 
 # CHECK accuracy
