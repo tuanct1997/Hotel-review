@@ -28,8 +28,7 @@ class LSTM(nn.Module):
 	"""docstring for LSTM"""
 	def __init__(self):
 		super(LSTM, self).__init__()
-		# self.word_embeddings = nn.Embedding.from_pretrained(w2v_weights)
-		self.lstm = nn.LSTM(100, 700,bidirectional = True)
+        self.lstm = nn.LSTM(100, 700,bidirectional = True)
         self.lstm2 = nn.LSTM(1400, 500,bidirectional = True)
         self.lstm3 = nn.LSTM(1000, 300,bidirectional = False)
         self.lstm4 = nn.LSTM(300, 100,bidirectional = False)
