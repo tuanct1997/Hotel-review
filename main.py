@@ -45,6 +45,7 @@ class LSTM(nn.Module):
 		return output
 		
 
+# CHECK accuracy
 def check_acc(result,prediction):
     count = 0
     # check each prediction
@@ -58,7 +59,8 @@ def check_acc(result,prediction):
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(torch.cuda.current_device())
 
-#torch.cuda.set_device(0)
+# IN NEED TO SPECIFY FREE GPU
+torch.cuda.set_device(0)
 DATA = pd.read_csv('tripadvisor_hotel_reviews.csv')
 
 print(DATA.info())
@@ -73,15 +75,19 @@ for idx,val in DATA.iterrows():
 	rate.append(val['Rating'] - 1)
 print(len(txt_sequence))
 print('!!!!!!!!!!!!!!!!!!!!!')
+#~~~~~~~~~~~~~~~~~~~~ TRAIN W2v ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # w2v_model = gensim.models.Word2Vec(txt_sequence, min_count = 1)
 # w2v_model.save('./model/word2vec.model')
 # word_vectors = w2v_model.wv
 # word_vectors.save('./model/word2vec.wordvectors')
+
+#~~~~~~~~~~~~~~~~~~~~ LOAD W2v ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 w2v_model = gensim.models.Word2Vec.load('./model/word2vec.model')
 w2v_weights = torch.from_numpy(w2v_model.wv.vectors)
 print(w2v_weights.shape)
 word_vectors = KeyedVectors.load('./model/word2vec.wordvectors', mmap = 'r')
 print('----------------------')
+# EMBEDDING WORD BASE ON WEIGHT OF W2V
 x = []
 i = 0
 for sentence in txt_sequence:
@@ -90,12 +96,10 @@ for sentence in txt_sequence:
 		temp.append(w2v_model.wv[word])
 	x.append(temp)
 x = np.array(x)
-#print(x)
-print('!!!!!!!!')
 x = keras.preprocessing.sequence.pad_sequences(x, dtype='float32')
-#print(x)
 rate = np.array(rate)
-# print(a)
+
+#split
 x_train, x_test, y_train, y_test = train_test_split(x, rate, test_size=0.2, shuffle = False)
 
 x_train = torch.from_numpy(x_train)
@@ -115,9 +119,9 @@ train_losses = []
 val_losses = []
 paitent = 0
 old = 0
-# model.word_embeddings.weight.data.copy_(torch.from_numpy(w2v_weights))
-
 # Make sure that the weights in the embedding layer are not updated
+# ~~~~~~~~~~~~~~~~ ONLY NEED EMBEDDING LAYER ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# model.word_embeddings.weight.data.copy_(torch.from_numpy(w2v_weights))
 # model.word_embeddings.weight.requires_grad=False
 
 for epoch in range(50):
@@ -143,8 +147,17 @@ for epoch in range(50):
             print('[%d, %5d] loss: %.5f' %
                   (epoch + 1, i + 1, running_loss / len(loader)))
 torch.save(model.state_dict(), './model/entire_model.pt')
-outputs_val = model(x_test.to(device))
-_, predicted = torch.max(outputs_val,1)
-val_acc = check_acc(y_test, predicted)
+trainset = TensorDataset(x_test,y_test)
+testloader = DataLoader(trainset, batch_size = 64)
+
+acc = []
+for i, data in enumerate(testloader, 0):
+    inputs,labels = data[0].to(device), data[1].to(device)
+    outputs_val = model(inputs)
+    _, predicted = torch.max(outputs_val,1)
+    val_acc = check_acc(labels, predicted)
+    acc.append(vall_acc)
+
+final_acc = sum(acc)/len(acc)
 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 print("VAL_ACC : {}".format(val_acc))

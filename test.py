@@ -73,15 +73,22 @@ for idx,val in DATA.iterrows():
 	rate.append(val['Rating'] - 1)
 print(len(txt_sequence))
 print('!!!!!!!!!!!!!!!!!!!!!')
+
+#~~~~~~~~~~~~~~~~~~~~ TRAIN W2v ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # w2v_model = gensim.models.Word2Vec(txt_sequence, min_count = 1)
 # w2v_model.save('./model/word2vec.model')
 # word_vectors = w2v_model.wv
 # word_vectors.save('./model/word2vec.wordvectors')
+
+#~~~~~~~~~~~~~~~~~~~~ LOAD W2v ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 w2v_model = gensim.models.Word2Vec.load('./model/word2vec.model')
 w2v_weights = torch.from_numpy(w2v_model.wv.vectors)
+# CHECK WEIGHT
 print(w2v_weights.shape)
 word_vectors = KeyedVectors.load('./model/word2vec.wordvectors', mmap = 'r')
 print('----------------------')
+
+# EMBEDDING WORD BASE ON WEIGHT OF W2V
 x = []
 i = 0
 for sentence in txt_sequence:
@@ -90,10 +97,9 @@ for sentence in txt_sequence:
 		temp.append(w2v_model.wv[word])
 	x.append(temp)
 x = np.array(x)
-#print(x)
 print('!!!!!!!!')
+# PAD SEQUENCE
 x = keras.preprocessing.sequence.pad_sequences(x, dtype='float32')
-#print(x)
 rate = np.array(rate)
 # print(a)
 x_train, x_test, y_train, y_test = train_test_split(x, rate, test_size=0.2, shuffle = False)
@@ -114,38 +120,25 @@ train_losses = []
 val_losses = []
 paitent = 0
 old = 0
-# model.word_embeddings.weight.data.copy_(torch.from_numpy(w2v_weights))
-
 # Make sure that the weights in the embedding layer are not updated
+# ~~~~~~~~~~~~~~~~ ONLY NEED EMBEDDING LAYER ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# model.word_embeddings.weight.data.copy_(torch.from_numpy(w2v_weights))
 # model.word_embeddings.weight.requires_grad=False
 
-# for epoch in range(50):
-#     running_loss = 0.0
-#     # begin update with each mini-batch
-#     for i, data in enumerate(loader, 0):
-#         inputs,labels = data[0].to(device), data[1].to(device)
-#         optimizer.zero_grad()
-#         # remember to replace model if we want another network 
-#         #model => MLP
-#         # model2 => LSTM
-#         # model3 => RNN
-#         outputs = model(inputs)
-#         # outputs = outputs.permute(0, 2, 1)
-#         loss = criterion(outputs, labels)
-#         loss.backward()
-#         optimizer.step()
-#         running_loss += loss.item()
-#         del inputs
-#         del labels
-#         torch.cuda.empty_cache()
-#         if i == len(loader)-1 :
-#             print('[%d, %5d] loss: %.5f' %
-#                   (epoch + 1, i + 1, running_loss / len(loader)))
 
 model.load_state_dict(torch.load('./model/entire_model.pt'))
 model.to(device)
-outputs_val = model(x_test.to(device))
-_, predicted = torch.max(outputs_val,1)
-val_acc = check_acc(y_test, predicted)
+trainset = TensorDataset(x_test,y_test)
+testloader = DataLoader(trainset, batch_size = 64)
+
+acc = []
+for i, data in enumerate(testloader, 0):
+    inputs,labels = data[0].to(device), data[1].to(device)
+    outputs_val = model(inputs)
+    _, predicted = torch.max(outputs_val,1)
+    val_acc = check_acc(labels, predicted)
+    acc.append(vall_acc)
+
+final_acc = sum(acc)/len(acc)
 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 print("VAL_ACC : {}".format(val_acc))
