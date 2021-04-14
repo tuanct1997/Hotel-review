@@ -37,10 +37,8 @@ class LSTM(nn.Module):
         self.act = nn.ReLU()
 
 	def forward(self,x):
-		# text_emb = self.word_embeddings(x)
-		# packed_input = pack_padded_sequence(text_emb, 1931, batch_first=True, enforce_sorted=False)
-		lstm_out, lstm_hidden = self.lstm(x)
-        lstm_out = lstm_out[:,1:7,:]
+        lstm_out, lstm_hidden = self.lstm(x)
+        # lstm_out = lstm_out[:,1:100,:]
         lstm_out, lstm_hidden = self.lstm2(lstm_out)
         lstm_out, lstm_hidden = self.lstm3(lstm_out)
         lstm_out, lstm_hidden = self.lstm4(lstm_out)
