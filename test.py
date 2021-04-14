@@ -126,7 +126,7 @@ old = 0
 # model.word_embeddings.weight.requires_grad=False
 
 
-model.load_state_dict(torch.load('./model/entire_model.pt'))
+model.load_state_dict(torch.load('./model/entire_model_new.pt'))
 model.to(device)
 trainset = TensorDataset(x_test,y_test)
 testloader = DataLoader(trainset, batch_size = 64)
