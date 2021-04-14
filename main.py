@@ -131,7 +131,7 @@ old = 0
 # model.word_embeddings.weight.data.copy_(torch.from_numpy(w2v_weights))
 # model.word_embeddings.weight.requires_grad=False
 
-for epoch in range(2):
+for epoch in range(5):
     running_loss = 0.0
     # begin update with each mini-batch
     for i, data in enumerate(loader, 0):
@@ -153,7 +153,7 @@ for epoch in range(2):
         if i == len(loader)-1 :
             print('[%d, %5d] loss: %.5f' %
                   (epoch + 1, i + 1, running_loss / len(loader)))
-torch.save(model.state_dict(), './model/entire_model_new2.pt')
+torch.save(model.state_dict(), './model/entire_model_new.pt')
 trainset = TensorDataset(x_test,y_test)
 testloader = DataLoader(trainset, batch_size = 64)
 
