@@ -25,9 +25,8 @@ import os
 ## >>> ssl._create_default_https_context = ssl._create_unverified_context
 
 class LSTM(nn.Module):
-	"""docstring for LSTM"""
-	def __init__(self):
-		super(LSTM, self).__init__()
+    def __init__(self):
+        super(LSTM, self).__init__()
         self.lstm = nn.LSTM(100, 700,bidirectional = True)
         self.lstm2 = nn.LSTM(1400, 500,bidirectional = True)
         self.lstm3 = nn.LSTM(1000, 300,bidirectional = False)
@@ -36,7 +35,7 @@ class LSTM(nn.Module):
         self.dense = nn.Linear(100, 5)
         self.act = nn.ReLU()
 
-	def forward(self,x):
+    def forward(self,x):
         lstm_out, lstm_hidden = self.lstm(x)
         # lstm_out = lstm_out[:,1:100,:]
         lstm_out, lstm_hidden = self.lstm2(lstm_out)
