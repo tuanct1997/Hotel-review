@@ -56,7 +56,7 @@ def check_acc(result,prediction):
     return count/len(result)
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(torch.cuda.current_device())
+# print(torch.cuda.current_device())
 
 #torch.cuda.set_device(0)
 DATA = pd.read_csv('tripadvisor_hotel_reviews.csv')
@@ -137,11 +137,12 @@ for i, data in enumerate(testloader, 0):
     outputs_val = model(inputs)
     _, predicted = torch.max(outputs_val,1)
     val_acc = check_acc(labels, predicted)
+    print(val_acc)
     acc.append(val_acc)
-    del inputs
-    del labels
-    torch.cuda.empty_cache()
+    # del inputs
+    # del labels
+    # torch.cuda.empty_cache()
 
 final_acc = sum(acc)/len(acc)
 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-print("VAL_ACC : {}".format(val_acc))
+print("VAL_ACC : {}".format(final_acc))
