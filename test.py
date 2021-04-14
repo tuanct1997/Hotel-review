@@ -25,24 +25,31 @@ import os
 ## >>> ssl._create_default_https_context = ssl._create_unverified_context
 
 class LSTM(nn.Module):
-	"""docstring for LSTM"""
-	def __init__(self):
-		super(LSTM, self).__init__()
-		# self.word_embeddings = nn.Embedding.from_pretrained(w2v_weights)
-		self.lstm = nn.LSTM(100, 300,2,bidirectional = False)
-		self.dropout = nn.Dropout(0.5)
-		self.dense = nn.Linear(300, 5)
-		self.act = nn.ReLU()
+    def __init__(self):
+        super(LSTM, self).__init__()
+        self.lstm = nn.LSTM(100, 50,bidirectional = True)
+        # self.lstm2 = nn.LSTM(1400, 500,bidirectional = True)
+        # self.lstm3 = nn.LSTM(1000, 300,bidirectional = False)
+        # self.lstm4 = nn.LSTM(300, 100,bidirectional = False)
+        self.dense1 = nn.Linear(100,50)
+        self.dense2 = nn.Linear(50,10)
+        # self.dropout = nn.Dropout(0.5)
+        self.dense = nn.Linear(10, 5)
+        # self.act = nn.ReLU()
 
-	def forward(self,x):
-		# text_emb = self.word_embeddings(x)
-		# packed_input = pack_padded_sequence(text_emb, 1931, batch_first=True, enforce_sorted=False)
-		lstm_out, lstm_hidden = self.lstm(x)
-		lstm_out = lstm_out[:,-1,:]
-		lstm_out = self.act(lstm_out)
-		drop_out = self.dropout(lstm_out)
-		output = self.dense(drop_out)
-		return output
+    def forward(self,x):
+        lstm_out, lstm_hidden = self.lstm(x)
+        # lstm_out = lstm_out[:,1,:]
+        # lstm_out, lstm_hidden = self.lstm2(lstm_out)
+        # lstm_out, lstm_hidden = self.lstm3(lstm_out)
+        # lstm_out, lstm_hidden = self.lstm4(lstm_out)
+        lstm_out = lstm_out[:,-1,:]
+        # lstm_out = self.act(lstm_out)
+        output = self.dense1(lstm_out)
+        output = self.dense2(output)
+        # drop_out = self.dropout(lstm_out)
+        output = self.dense(output)
+        return output
 		
 
 def check_acc(result,prediction):
