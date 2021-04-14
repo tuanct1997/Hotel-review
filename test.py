@@ -139,9 +139,9 @@ for i, data in enumerate(testloader, 0):
     val_acc = check_acc(labels, predicted)
     print(val_acc)
     acc.append(val_acc)
-    # del inputs
-    # del labels
-    # torch.cuda.empty_cache()
+    del inputs
+    del labels
+    torch.cuda.empty_cache()
 
 final_acc = sum(acc)/len(acc)
 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
