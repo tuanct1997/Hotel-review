@@ -137,7 +137,10 @@ for i, data in enumerate(testloader, 0):
     outputs_val = model(inputs)
     _, predicted = torch.max(outputs_val,1)
     val_acc = check_acc(labels, predicted)
-    acc.append(vall_acc)
+    acc.append(val_acc)
+    del inputs
+    del labels
+    torch.cuda.empty_cache()
 
 final_acc = sum(acc)/len(acc)
 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
