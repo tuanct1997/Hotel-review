@@ -19,6 +19,7 @@ from tensorflow import keras
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
+import os
 ## TORCHTEXT == 0.8 
 ## >>> import ssl
 ## >>> ssl._create_default_https_context = ssl._create_unverified_context
@@ -28,9 +29,9 @@ class LSTM(nn.Module):
 	def __init__(self):
 		super(LSTM, self).__init__()
 		# self.word_embeddings = nn.Embedding.from_pretrained(w2v_weights)
-		self.lstm = nn.LSTM(100, 300,2,bidirectional = True)
+		self.lstm = nn.LSTM(100, 300,2,bidirectional = False)
 		self.dropout = nn.Dropout(0.5)
-		self.dense = nn.Linear(600, 5)
+		self.dense = nn.Linear(300, 5)
 		self.act = nn.ReLU()
 
 	def forward(self,x):
@@ -55,7 +56,9 @@ def check_acc(result,prediction):
     return count/len(result)
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print(torch.cuda.current_device())
 
+#torch.cuda.set_device(0)
 DATA = pd.read_csv('tripadvisor_hotel_reviews.csv')
 
 print(DATA.info())
@@ -87,18 +90,18 @@ for sentence in txt_sequence:
 		temp.append(w2v_model.wv[word])
 	x.append(temp)
 x = np.array(x)
-print(x)
+#print(x)
 print('!!!!!!!!')
 x = keras.preprocessing.sequence.pad_sequences(x, dtype='float32')
-print(x)
+#print(x)
 rate = np.array(rate)
 # print(a)
 x_train, x_test, y_train, y_test = train_test_split(x, rate, test_size=0.2, shuffle = False)
 
-x_train = torch.from_numpy(x_train).to(device)
-x_test = torch.from_numpy(x_test).to(device)
-y_train = torch.from_numpy(y_train).to(device)
-y_test = torch.from_numpy(y_test).to(device)
+x_train = torch.from_numpy(x_train)
+x_test = torch.from_numpy(x_test)
+y_train = torch.from_numpy(y_train)
+y_test = torch.from_numpy(y_test)
 trainset = TensorDataset(x_train,y_train)
 loader = DataLoader(trainset, batch_size = 64)
 i1,l1 = next(iter(loader))
@@ -117,11 +120,11 @@ old = 0
 # Make sure that the weights in the embedding layer are not updated
 # model.word_embeddings.weight.requires_grad=False
 
-for epoch in range(100):
+for epoch in range(50):
     running_loss = 0.0
     # begin update with each mini-batch
     for i, data in enumerate(loader, 0):
-        inputs,labels = data
+        inputs,labels = data[0].to(device), data[1].to(device)
         optimizer.zero_grad()
         # remember to replace model if we want another network 
         #model => MLP
@@ -133,12 +136,14 @@ for epoch in range(100):
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
-        #reach to the end of mini-batch
+        del inputs
+        del labels
+        torch.cuda.empty_cache()
         if i == len(loader)-1 :
             print('[%d, %5d] loss: %.5f' %
-                  (epoch + 1, i + 1, running_loss / 270))
-
-outputs_val = model(x_test)
+                  (epoch + 1, i + 1, running_loss / len(loader)))
+torch.save(model.state_dict(), './model/entire_model.pt')
+outputs_val = model(x_test.to(device))
 _, predicted = torch.max(outputs_val,1)
 val_acc = check_acc(y_test, predicted)
 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
