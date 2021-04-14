@@ -124,7 +124,7 @@ old = 0
 # model.word_embeddings.weight.data.copy_(torch.from_numpy(w2v_weights))
 # model.word_embeddings.weight.requires_grad=False
 
-for epoch in range(50):
+for epoch in range(250):
     running_loss = 0.0
     # begin update with each mini-batch
     for i, data in enumerate(loader, 0):
