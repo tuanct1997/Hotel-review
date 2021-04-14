@@ -146,7 +146,7 @@ for epoch in range(250):
         if i == len(loader)-1 :
             print('[%d, %5d] loss: %.5f' %
                   (epoch + 1, i + 1, running_loss / len(loader)))
-torch.save(model.state_dict(), './model/entire_model.pt')
+torch.save(model.state_dict(), './model/entire_model_new.pt')
 trainset = TensorDataset(x_test,y_test)
 testloader = DataLoader(trainset, batch_size = 64)
 
