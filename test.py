@@ -138,6 +138,7 @@ for i, data in enumerate(testloader, 0):
     _, predicted = torch.max(outputs_val,1)
     print(predicted)
     print('!!!!!!!!!!!!')
+    print(labels)
     val_acc = check_acc(labels, predicted)
     print(val_acc)
     acc.append(val_acc)
