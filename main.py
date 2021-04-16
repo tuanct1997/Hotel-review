@@ -121,7 +121,7 @@ y_test = torch.from_numpy(y_test)
 trainset = TensorDataset(x_train,y_train)
 # print(x_train.shape)
 # print(a)
-loader = DataLoader(trainset, batch_size = 64)
+loader = DataLoader(trainset, batch_size = 256)
 i1,l1 = next(iter(loader))
 
 model = LSTM()
@@ -138,7 +138,7 @@ old = 0
 # model.word_embeddings.weight.data.copy_(torch.from_numpy(w2v_weights))
 # model.word_embeddings.weight.requires_grad=False
 
-for epoch in range(250):
+for epoch in range(30):
     running_loss = 0.0
     # begin update with each mini-batch
     for i, data in enumerate(loader, 0):

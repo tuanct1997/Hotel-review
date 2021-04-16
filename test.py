@@ -27,15 +27,14 @@ import os
 class LSTM(nn.Module):
     def __init__(self):
         super(LSTM, self).__init__()
-        self.lstm = nn.LSTM(100, 50,bidirectional = True)
+        self.lstm = nn.LSTM(100, 32,bidirectional = True)
         # self.lstm2 = nn.LSTM(1400, 500,bidirectional = True)
         # self.lstm3 = nn.LSTM(1000, 300,bidirectional = False)
         # self.lstm4 = nn.LSTM(300, 100,bidirectional = False)
-        self.dense1 = nn.Linear(100,50)
-        self.dense2 = nn.Linear(50,10)
+        self.dense1 = nn.Linear(64,16)
+        self.dense2 = nn.Linear(16,5)
         # self.dropout = nn.Dropout(0.5)
-        self.dense = nn.Linear(10, 5)
-        # self.act = nn.ReLU()
+        self.act = nn.ReLU()
 
     def forward(self,x):
         lstm_out, lstm_hidden = self.lstm(x)
@@ -45,10 +44,10 @@ class LSTM(nn.Module):
         # lstm_out, lstm_hidden = self.lstm4(lstm_out)
         lstm_out = lstm_out[:,-1,:]
         # lstm_out = self.act(lstm_out)
-        output = self.dense1(lstm_out)
-        output = self.dense2(output)
+        output = self.act(self.dense1(lstm_out))
+        output = self.act(self.dense2(output))
         # drop_out = self.dropout(lstm_out)
-        output = self.dense(output)
+        # output = self.dense(output)
         return output
 		
 
@@ -133,7 +132,7 @@ old = 0
 # model.word_embeddings.weight.requires_grad=False
 
 
-model.load_state_dict(torch.load('./model/entire_model_new12.pt'))
+model.load_state_dict(torch.load('./model/entire_model_new123.pt'))
 model.to(device)
 trainset = TensorDataset(x_test,y_test)
 testloader = DataLoader(trainset, batch_size = 64)
