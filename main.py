@@ -102,7 +102,7 @@ for sentence in txt_sequence:
 		temp.append(w2v_model.wv[word])
 	x.append(temp)
 x = np.asarray(x)
-x = keras.preprocessing.sequence.pad_sequences(x, dtype='float32')
+x = keras.preprocessing.sequence.pad_sequences(x, maxlen = 200, dtype='float32')
 rate = np.array(rate)
 
 #split
