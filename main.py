@@ -20,6 +20,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 import os
+from wikipedia2vec import Wikipedia2Vec
 ## TORCHTEXT == 0.8 
 ## >>> import ssl
 ## >>> ssl._create_default_https_context = ssl._create_unverified_context
@@ -45,7 +46,7 @@ class LSTM(nn.Module):
         lstm_out = lstm_out[:,-1,:]
         # lstm_out = self.act(lstm_out)
         output = self.act(self.dense1(lstm_out))
-        output = self.act(self.dense2(output))
+        output = self.dense2(output)
         # drop_out = self.dropout(lstm_out)
         # output = self.dense(output)
         return output
@@ -67,33 +68,44 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # IN NEED TO SPECIFY FREE GPU
 # torch.cuda.set_device(0)
+
+#LOAD DATASET
 DATA = pd.read_csv('tripadvisor_hotel_reviews.csv')
 
 print(DATA.info())
 txt_sequence = []
 rate = []
+
+#convert phrase to list of words
 for idx,val in DATA.iterrows():
-	temp = []
-	for w in val['Review'].split():
-		w = w.translate(str.maketrans('', '', string.punctuation))
-		temp.append(w)
-	txt_sequence.append(temp)
-	rate.append(val['Rating'] - 1)
+    temp = []
+    for w in val['Review'].split():
+        w = w.translate(str.maketrans('', '', string.punctuation))
+        if all(str.isdigit(c) for c in w):
+            continue
+        temp.append(w)
+        txt_sequence.append(temp)
+    rate.append(val['Rating'] - 1)
+
 print(len(txt_sequence))
 print('!!!!!!!!!!!!!!!!!!!!!')
 #~~~~~~~~~~~~~~~~~~~~ TRAIN W2v ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# w2v_model = gensim.models.Word2Vec(txt_sequence, min_count = 1)
-# w2v_model.save('./model/word2vec.model')
-# word_vectors = w2v_model.wv
-# word_vectors.save('./model/word2vec.wordvectors')
+w2v_model = gensim.models.Word2Vec(txt_sequence, min_count = 1)
+w2v_model.save('./model/word2vec.model')
+word_vectors = w2v_model.wv
+word_vectors.save('./model/word2vec.wordvectors')
 
 #~~~~~~~~~~~~~~~~~~~~ LOAD W2v ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-w2v_model = gensim.models.Word2Vec.load('./model/word2vec.model')
-w2v_weights = torch.from_numpy(w2v_model.wv.vectors)
-print(w2v_weights.shape)
-word_vectors = KeyedVectors.load('./model/word2vec.wordvectors', mmap = 'r')
-print('----------------------')
-# EMBEDDING WORD BASE ON WEIGHT OF W2V
+# w2v_model = gensim.models.Word2Vec.load('./model/word2vec.model')
+# w2v_weights = torch.from_numpy(w2v_model.wv.vectors)
+# print(w2v_weights.shape)
+# word_vectors = KeyedVectors.load('./model/word2vec.wordvectors', mmap = 'r')
+# print('----------------------')
+
+#~~~~~~~~~~~~~~~~~~~~~~ LOAD PRETRAINED WIKIWORD2VEC ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MODEL_FILE = 1
+# wiki2vec = Wikipedia2Vec.load(MODEL_FILE)
+# EMBEDDING WORD BASE ON WEIGHT OF W2V - SO DON'T NEED OF EMBEDDING LAYER
 x = []
 i = 0
 for sentence in txt_sequence:
@@ -102,6 +114,8 @@ for sentence in txt_sequence:
 		temp.append(w2v_model.wv[word])
 	x.append(temp)
 x = np.asarray(x)
+
+# KEEP NUMPY ARRAY DOESN'T HAVE MIXED SHAPES
 x = keras.preprocessing.sequence.pad_sequences(x, maxlen = 200, dtype='float32')
 rate = np.array(rate)
 
@@ -144,10 +158,6 @@ for epoch in range(30):
     for i, data in enumerate(loader, 0):
         inputs,labels = data[0].to(device), data[1].to(device)
         optimizer.zero_grad()
-        # remember to replace model if we want another network 
-        #model => MLP
-        # model2 => LSTM
-        # model3 => RNN
         outputs = model(inputs)
         # outputs = outputs.permute(0, 2, 1)
         loss = criterion(outputs, labels)
@@ -163,14 +173,14 @@ for epoch in range(30):
 torch.save(model.state_dict(), './model/entire_model_new123.pt')
 trainset = TensorDataset(x_test,y_test)
 testloader = DataLoader(trainset, batch_size = 64)
-
+#test : swith to test.py for test function if GPU cannot loaded
 acc = []
 for i, data in enumerate(testloader, 0):
     inputs,labels = data[0].to(device), data[1].to(device)
     outputs_val = model(inputs)
     _, predicted = torch.max(outputs_val,1)
     val_acc = check_acc(labels, predicted)
-    acc.append(vall_acc)
+    acc.append(val_acc)
 
 final_acc = sum(acc)/len(acc)
 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
