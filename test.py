@@ -28,20 +28,20 @@ class LSTM(nn.Module):
     def __init__(self):
         super(LSTM, self).__init__()
         self.lstm = nn.LSTM(100, 32,bidirectional = True)
-        # self.lstm2 = nn.LSTM(1400, 500,bidirectional = True)
-        # self.lstm3 = nn.LSTM(1000, 300,bidirectional = False)
-        # self.lstm4 = nn.LSTM(300, 100,bidirectional = False)
+        self.lstm2 = nn.LSTM(1400, 500,bidirectional = True)
+        self.lstm3 = nn.LSTM(1000, 300,bidirectional = False)
+        self.lstm4 = nn.LSTM(300, 100,bidirectional = False)
         self.dense1 = nn.Linear(64,16)
         self.dense2 = nn.Linear(16,5)
         # self.dropout = nn.Dropout(0.5)
         self.act = nn.ReLU()
 
     def forward(self,x):
-        lstm_out, lstm_hidden = self.lstm(x)
+        # lstm_out, lstm_hidden = self.lstm(x)
         # lstm_out = lstm_out[:,1,:]
-        # lstm_out, lstm_hidden = self.lstm2(lstm_out)
-        # lstm_out, lstm_hidden = self.lstm3(lstm_out)
-        # lstm_out, lstm_hidden = self.lstm4(lstm_out)
+        lstm_out, lstm_hidden = self.lstm2(x)
+        lstm_out, lstm_hidden = self.lstm3(lstm_out)
+        lstm_out, lstm_hidden = self.lstm4(lstm_out)
         lstm_out = lstm_out[:,-1,:]
         # lstm_out = self.act(lstm_out)
         output = self.act(self.dense1(lstm_out))
