@@ -90,17 +90,17 @@ for idx,val in DATA.iterrows():
 print(len(txt_sequence))
 print('!!!!!!!!!!!!!!!!!!!!!')
 #~~~~~~~~~~~~~~~~~~~~ TRAIN W2v ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-w2v_model = gensim.models.Word2Vec(txt_sequence, min_count = 1)
-w2v_model.save('./model/word2vec.model')
-word_vectors = w2v_model.wv
-word_vectors.save('./model/word2vec.wordvectors')
+# w2v_model = gensim.models.Word2Vec(txt_sequence, min_count = 1)
+# w2v_model.save('./model/word2vec.model')
+# word_vectors = w2v_model.wv
+# word_vectors.save('./model/word2vec.wordvectors')
 
 #~~~~~~~~~~~~~~~~~~~~ LOAD W2v ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# w2v_model = gensim.models.Word2Vec.load('./model/word2vec.model')
-# w2v_weights = torch.from_numpy(w2v_model.wv.vectors)
-# print(w2v_weights.shape)
-# word_vectors = KeyedVectors.load('./model/word2vec.wordvectors', mmap = 'r')
-# print('----------------------')
+w2v_model = gensim.models.Word2Vec.load('./model/word2vec.model')
+w2v_weights = torch.from_numpy(w2v_model.wv.vectors)
+print(w2v_weights.shape)
+word_vectors = KeyedVectors.load('./model/word2vec.wordvectors', mmap = 'r')
+print('----------------------')
 
 #~~~~~~~~~~~~~~~~~~~~~~ LOAD PRETRAINED WIKIWORD2VEC ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MODEL_FILE = 1
@@ -113,6 +113,7 @@ for sentence in txt_sequence:
 	for word in sentence :
 		temp.append(w2v_model.wv[word])
 	x.append(temp)
+    print(sentence)
 x = np.asarray(x)
 
 # KEEP NUMPY ARRAY DOESN'T HAVE MIXED SHAPES
