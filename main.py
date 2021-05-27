@@ -109,10 +109,10 @@ print('----------------------')
 x = []
 i = 0
 for sentence in txt_sequence:
-	temp = []
-	for word in sentence :
-		temp.append(w2v_model.wv[word])
-	x.append(temp)
+    temp = []
+    for word in sentence :
+        temp.append(w2v_model.wv[word])
+    x.append(temp)
     print(sentence)
 x = np.asarray(x)
 
