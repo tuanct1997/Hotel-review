@@ -74,7 +74,9 @@ for idx,val in DATA.iterrows():
 	temp = []
 	for w in val['Review'].split():
 		w = w.translate(str.maketrans('', '', string.punctuation))
-		temp.append(w)
+        if all(str.isdigit(c) for c in w):
+            continue
+        temp.append(w)
 	txt_sequence.append(temp)
 	rate.append(val['Rating'] - 1)
 print(len(txt_sequence))
