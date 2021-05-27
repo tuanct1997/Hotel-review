@@ -32,7 +32,7 @@ class LSTM(nn.Module):
         self.lstm2 = nn.LSTM(100, 500,bidirectional = True)
         self.lstm3 = nn.LSTM(1000, 300,bidirectional = False)
         self.lstm4 = nn.LSTM(300, 100,bidirectional = False)
-        self.dense1 = nn.Linear(64,16)
+        self.dense1 = nn.Linear(100,16)
         self.dense2 = nn.Linear(16,5)
         # self.dropout = nn.Dropout(0.5)
         self.act = nn.ReLU()
