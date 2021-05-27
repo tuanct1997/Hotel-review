@@ -84,17 +84,16 @@ for idx,val in DATA.iterrows():
         if all(str.isdigit(c) for c in w):
             continue
         temp.append(w)
-        txt_sequence.append(temp)
+    txt_sequence.append(temp)
     rate.append(val['Rating'] - 1)
 
 print(len(txt_sequence))
 print('!!!!!!!!!!!!!!!!!!!!!')
 #~~~~~~~~~~~~~~~~~~~~ TRAIN W2v ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# w2v_model = gensim.models.Word2Vec(txt_sequence, min_count = 1)
+# w2v_model = gensim.models.Word2Vec(txt_sequence, min_count = 1, workers = 4)
 # w2v_model.save('./model/word2vec.model')
 # word_vectors = w2v_model.wv
 # word_vectors.save('./model/word2vec.wordvectors')
-
 #~~~~~~~~~~~~~~~~~~~~ LOAD W2v ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 w2v_model = gensim.models.Word2Vec.load('./model/word2vec.model')
 w2v_weights = torch.from_numpy(w2v_model.wv.vectors)
