@@ -26,6 +26,8 @@ import re
 from transformers import BertModel, AdamW, get_linear_schedule_with_warmup
 import time
 
+
+STOP_WORDS = ["ourselves", "hers", "between", "yourself", "but", "again", "there", "about", "once", "during", "out", "very", "having", "with", "they", "own", "an", "be", "some", "for", "do", "its", "yours", "such", "into", "of", "most", "itself", "other", "off", "is", "s", "am", "or", "who", "as", "from", "him", "each", "the", "themselves", "until", "below", "are", "we", "these", "your", "his", "through", "don", "nor", "me", "were", "her", "more", "himself", "this", "down", "should", "our", "their", "while", "above", "both", "up", "to", "ours", "had", "she", "all", "no", "when", "at", "any", "before", "them", "same", "and", "been", "have", "in", "will", "on", "does", "yourselves", "then", "that", "because", "what", "over", "why", "so", "can", "did", "not", "now", "under", "he", "you", "herself", "has", "just", "where", "too", "only", "myself", "which", "those", "i", "after", "few", "whom", "t", "being", "if", "theirs", "my", "against", "a", "by", "doing", "it", "how", "further", "was", "here", "than"]
 MAX_LEN = 64
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -294,7 +296,7 @@ def text_preprocessing(s):
     s = re.sub(r'([\;\:\|•«\n])', ' ', s)
     # Remove stopwords except 'not' and 'can'
     s = " ".join([word for word in s.split()
-                  if word in ['not', 'can']])
+                  if word in ['not', 'can']] or word not in STOP_WORDS)
     # Remove trailing whitespace
     s = re.sub(r'\s+', ' ', s).strip()
     
