@@ -188,4 +188,4 @@ for i, data in enumerate(testloader, 0):
 
 final_acc = sum(acc)/len(acc)
 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-print("VAL_ACC : {}".format(val_acc))
+print("VAL_ACC : {}".format(final_acc))
