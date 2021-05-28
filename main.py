@@ -116,7 +116,7 @@ for sentence in txt_sequence:
 x = np.asarray(x)
 
 # KEEP NUMPY ARRAY DOESN'T HAVE MIXED SHAPES
-x = keras.preprocessing.sequence.pad_sequences(x, maxlen = 200, dtype='float32')
+x = keras.preprocessing.sequence.pad_sequences(x, maxlen = 64, dtype='float32')
 rate = np.array(rate)
 
 #split
