@@ -296,7 +296,8 @@ def text_preprocessing(s):
     s = re.sub(r'([\;\:\|•«\n])', ' ', s)
     # Remove stopwords except 'not' and 'can'
     s = " ".join([word for word in s.split()
-                  if word in ['not', 'can']] or word not in STOP_WORDS)
+                  if word not in STOP_WORDS
+                  or word in ['not', 'can']])
     # Remove trailing whitespace
     s = re.sub(r'\s+', ' ', s).strip()
     
