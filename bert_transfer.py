@@ -241,6 +241,33 @@ def train(model, train_dataloader, val_dataloader=None, epochs=4, evaluation=Fal
     
     print("Training complete!")
 
+def bert_predict(model, test_dataloader):
+    """Perform a forward pass on the trained BERT model to predict probabilities
+    on the test set.
+    """
+    # Put the model into the evaluation mode. The dropout layers are disabled during
+    # the test time.
+    model.eval()
+
+    all_logits = []
+
+    # For each batch in our test set...
+    for batch in test_dataloader:
+        # Load batch to GPU
+        b_input_ids, b_attn_mask = tuple(t.to(device) for t in batch)[:2]
+
+        # Compute logits
+        with torch.no_grad():
+            logits = model(b_input_ids, b_attn_mask)
+        all_logits.append(logits)
+    
+    # Concatenate logits from each batch
+    all_logits = torch.cat(all_logits, dim=0)
+
+    # Apply softmax to calculate probabilities
+    probs = F.softmax(all_logits, dim=1).cpu().numpy()
+
+    return probs
 
 def text_preprocessing(s):
     """
@@ -368,8 +395,13 @@ val_dataloader = DataLoader(val_data, sampler=val_sampler, batch_size=batch_size
 loss_fn = nn.CrossEntropyLoss()
 
 set_seed(42)    # Set seed for reproducibility
-bert_classifier, optimizer, scheduler = initialize_model(epochs=2)
-train(bert_classifier, train_dataloader, val_dataloader, epochs=2, evaluation=True)
+bert_classifier, optimizer, scheduler = initialize_model(epochs=10)
+train(bert_classifier, train_dataloader, val_dataloader, epochs=10, evaluation=True)
 
+# Compute predicted probabilities on the test set
+probs = bert_predict(bert_classifier, val_dataloader)
+
+# Evaluate the Bert classifier
+evaluate_roc(probs, y_val)
 
 
