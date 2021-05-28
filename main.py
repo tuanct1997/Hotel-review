@@ -183,6 +183,7 @@ for i, data in enumerate(testloader, 0):
     print("!!!!")
     print(labels)
     val_acc = check_acc(labels, predicted)
+    print(val_acc)
     acc.append(val_acc)
 
 final_acc = sum(acc)/len(acc)
