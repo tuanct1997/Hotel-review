@@ -179,7 +179,7 @@ for i, data in enumerate(testloader, 0):
     inputs,labels = data[0].to(device), data[1].to(device)
     outputs_val = model(inputs)
     _, predicted = torch.max(outputs_val,1)
-    print(predcited)
+    print(predicted)
     print("!!!!")
     print(labels)
     val_acc = check_acc(labels, predicted)
